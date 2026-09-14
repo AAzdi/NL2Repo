@@ -1,0 +1,1082 @@
+{
+  "harness": "claude_code",
+  "experiment_name": "phoenix-controlled-full-001",
+  "output_dir": "experiments",
+  "claude_code": {
+    "generation_retries": 1,
+    "evaluation_retries": 2,
+    "retry_delay_seconds": 5,
+    "image": "nl2repo-claude-code:2.1.263",
+    "max_turns": 100,
+    "timeout_seconds": 7200,
+    "offline_environments": {
+      "aiofiles": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/aiofiles:1.0",
+        "target_distributions": [
+          "aiofiles"
+        ],
+        "target_modules": [
+          "aiofiles"
+        ]
+      },
+      "arguably": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/arguably:1.0",
+        "target_distributions": [
+          "arguably"
+        ],
+        "target_modules": [
+          "arguably"
+        ]
+      },
+      "arxiv-mcp-server": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/arxiv-mcp-server:1.0",
+        "target_distributions": [
+          "arxiv-mcp-server"
+        ],
+        "target_modules": [
+          "arxiv_mcp_server"
+        ]
+      },
+      "asteval": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/asteval:1.0",
+        "target_distributions": [
+          "asteval"
+        ],
+        "target_modules": [
+          "asteval"
+        ]
+      },
+      "autojump": {
+        "artifact_install_commands": ["python install.py"],
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/autojump:1.0",
+        "target_distributions": [
+          "autojump"
+        ],
+        "target_modules": [
+          "autojump",
+          "autojump_data",
+          "autojump_match",
+          "autojump_utils"
+        ]
+      },
+      "autopep8": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/autopep8:1.0",
+        "target_distributions": [
+          "autopep8"
+        ],
+        "target_modules": [
+          "autopep8"
+        ]
+      },
+      "autorccar": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/autorccar:1.0",
+        "target_distributions": [
+          "autorccar"
+        ],
+        "target_modules": [
+          "model",
+          "rc_driver_helper",
+          "rc_driver"
+        ]
+      },
+      "binaryalert": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/binaryalert:1.0",
+        "target_distributions": [
+          "binaryalert"
+        ],
+        "target_modules": [
+          "binaryalert"
+        ]
+      },
+      "bleach": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/bleach:1.0",
+        "target_distributions": [
+          "bleach"
+        ],
+        "target_modules": [
+          "bleach"
+        ]
+      },
+      "boltons": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/boltons:1.0",
+        "target_distributions": [
+          "boltons"
+        ],
+        "target_modules": [
+          "boltons"
+        ]
+      },
+      "boto": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/boto:1.0",
+        "target_distributions": [
+          "boto3"
+        ],
+        "target_modules": [
+          "boto3"
+        ]
+      },
+      "box": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/box:1.0",
+        "target_distributions": [
+          "python-box"
+        ],
+        "target_modules": [
+          "box"
+        ]
+      },
+      "cachier": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/cachier:1.0",
+        "target_distributions": [
+          "cachier"
+        ],
+        "target_modules": [
+          "cachier"
+        ]
+      },
+      "cerberus": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/cerberus:1.0",
+        "target_distributions": [
+          "cerberus"
+        ],
+        "target_modules": [
+          "cerberus"
+        ]
+      },
+      "cherry": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/cherry:1.0",
+        "target_distributions": [
+          "cherry"
+        ],
+        "target_modules": [
+          "cherry"
+        ]
+      },
+      "cookiecutter": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/cookiecutter:1.0",
+        "target_distributions": [
+          "cookiecutter"
+        ],
+        "target_modules": [
+          "cookiecutter"
+        ]
+      },
+      "coverage_shield": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/coverage_shield:1.0",
+        "target_distributions": [
+          "coverage_shield"
+        ],
+        "target_modules": [
+          "coverage_shield"
+        ]
+      },
+      "databases": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/databases:1.0",
+        "target_distributions": [
+          "databases"
+        ],
+        "target_modules": [
+          "databases"
+        ]
+      },
+      "dbutils": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/dbutils:1.0",
+        "target_distributions": [
+          "dbutils"
+        ],
+        "target_modules": [
+          "dbutils"
+        ]
+      },
+      "decouple": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/decouple:1.0",
+        "target_distributions": [
+          "python-decouple"
+        ],
+        "target_modules": [
+          "decouple"
+        ]
+      },
+      "deepdiff": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/deepdiff:1.0",
+        "target_distributions": [
+          "deepdiff"
+        ],
+        "target_modules": [
+          "deepdiff"
+        ]
+      },
+      "deslib": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/deslib:1.0",
+        "target_distributions": [
+          "deslib"
+        ],
+        "target_modules": [
+          "deslib"
+        ]
+      },
+      "dictdatabase": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/dictdatabase:1.0",
+        "target_distributions": [
+          "dictdatabase"
+        ],
+        "target_modules": [
+          "dictdatabase"
+        ]
+      },
+      "docopt-ng": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/docopt-ng:1.0",
+        "target_distributions": [
+          "docopt-ng",
+          "docopt"
+        ],
+        "target_modules": [
+          "docopt"
+        ]
+      },
+      "emoji": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/emoji:1.0",
+        "target_distributions": [
+          "emoji"
+        ],
+        "target_modules": [
+          "emoji"
+        ]
+      },
+      "fastapi-users": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/fastapi-users:1.0",
+        "target_distributions": [
+          "fastapi-users"
+        ],
+        "target_modules": [
+          "fastapi_users"
+        ]
+      },
+      "flask-restful": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/flask-restful:1.0",
+        "target_distributions": [
+          "flask-restful"
+        ],
+        "target_modules": [
+          "flask_restful"
+        ]
+      },
+      "flasky": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/flasky:1.0",
+        "target_distributions": [
+          "flasky"
+        ],
+        "target_modules": [
+          "app"
+        ]
+      },
+      "freezegun": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/freezegun:1.0",
+        "target_distributions": [
+          "freezegun"
+        ],
+        "target_modules": [
+          "freezegun"
+        ]
+      },
+      "frontmatter": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/frontmatter:1.0",
+        "target_distributions": [
+          "python-frontmatter"
+        ],
+        "target_modules": [
+          "frontmatter"
+        ]
+      },
+      "ftfy": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/ftfy:1.0",
+        "target_distributions": [
+          "ftfy"
+        ],
+        "target_modules": [
+          "ftfy"
+        ]
+      },
+      "funcy": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/funcy:1.0",
+        "target_distributions": [
+          "funcy"
+        ],
+        "target_modules": [
+          "funcy"
+        ]
+      },
+      "fuzzywuzzy": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/fuzzywuzzy:1.0",
+        "target_distributions": [
+          "fuzzywuzzy"
+        ],
+        "target_modules": [
+          "fuzzywuzzy"
+        ]
+      },
+      "gitingest": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/gitingest:1.0",
+        "target_distributions": [
+          "gitingest"
+        ],
+        "target_modules": [
+          "gitingest"
+        ]
+      },
+      "google-images-download": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/google-images-download:1.0",
+        "target_distributions": [
+          "google-images-download"
+        ],
+        "target_modules": [
+          "google_images_download"
+        ]
+      },
+      "graphneuralnetwork": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/graphneuralnetwork:1.0",
+        "target_distributions": [
+          "graphneuralnetwork"
+        ],
+        "target_modules": [
+          "gnn"
+        ]
+      },
+      "humanize": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/humanize:1.0",
+        "target_distributions": [
+          "humanize"
+        ],
+        "target_modules": [
+          "humanize"
+        ]
+      },
+      "icecream": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/icecream:1.0",
+        "target_distributions": [
+          "icecream"
+        ],
+        "target_modules": [
+          "icecream"
+        ]
+      },
+      "ipytest": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/ipytest:1.0",
+        "target_distributions": [
+          "ipytest"
+        ],
+        "target_modules": [
+          "ipytest"
+        ]
+      },
+      "jinja": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/jinja:1.0",
+        "target_distributions": [
+          "Jinja2"
+        ],
+        "target_modules": [
+          "jinja2"
+        ]
+      },
+      "jsonlines": {
+        "generation_image": "nl2repo-claude-code:2.1.263-py3.10",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/jsonlines:1.0",
+        "target_distributions": [
+          "jsonlines"
+        ],
+        "target_modules": [
+          "jsonlines"
+        ],
+        "python_version": "3.10"
+      },
+      "justext": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/justext:1.0",
+        "target_distributions": [
+          "justext"
+        ],
+        "target_modules": [
+          "justext"
+        ]
+      },
+      "markdownify": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/markdownify:1.0",
+        "target_distributions": [
+          "markdownify"
+        ],
+        "target_modules": [
+          "markdownify"
+        ]
+      },
+      "markupsafe": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/markupsafe:1.0",
+        "target_distributions": [
+          "markupsafe"
+        ],
+        "target_modules": [
+          "markupsafe"
+        ]
+      },
+      "math-verify": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/math-verify:1.0",
+        "target_distributions": [
+          "math-verify"
+        ],
+        "target_modules": [
+          "math_verify"
+        ]
+      },
+      "mechanicalsoup": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/mechanicalsoup:1.0",
+        "target_distributions": [
+          "mechanicalsoup"
+        ],
+        "target_modules": [
+          "mechanicalsoup"
+        ]
+      },
+      "mootdx": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/mootdx:1.0",
+        "target_distributions": [
+          "mootdx"
+        ],
+        "target_modules": [
+          "mootdx"
+        ]
+      },
+      "more-Itertools": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/more-itertools:1.0",
+        "target_distributions": [
+          "more-itertools"
+        ],
+        "target_modules": [
+          "more_itertools"
+        ]
+      },
+      "paillier": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/paillier:1.0",
+        "target_distributions": [
+          "phe",
+          "python-paillier"
+        ],
+        "target_modules": [
+          "phe"
+        ]
+      },
+      "pandarallel": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pandarallel:1.0",
+        "target_distributions": [
+          "pandarallel"
+        ],
+        "target_modules": [
+          "pandarallel"
+        ]
+      },
+      "parse": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/parse:1.0",
+        "target_distributions": [
+          "parse"
+        ],
+        "target_modules": [
+          "parse"
+        ]
+      },
+      "pathlib2": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pathlib2:1.0",
+        "target_distributions": [
+          "pathlib2"
+        ],
+        "target_modules": [
+          "pathlib2"
+        ]
+      },
+      "pdfplumber-stable": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pdfplumber-stable:1.0",
+        "target_distributions": [
+          "pdfplumber"
+        ],
+        "target_modules": [
+          "pdfplumber"
+        ]
+      },
+      "plac": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/plac:1.0",
+        "target_distributions": [
+          "plac"
+        ],
+        "target_modules": [
+          "plac"
+        ]
+      },
+      "pss": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pss:1.0",
+        "target_distributions": [
+          "pss"
+        ],
+        "target_modules": [
+          "psslib"
+        ]
+      },
+      "pyautogui": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pyautogui:1.0",
+        "target_distributions": [
+          "pyautogui"
+        ],
+        "target_modules": [
+          "pyautogui"
+        ]
+      },
+      "pyjwt": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pyjwt:1.0",
+        "target_distributions": [
+          "PyJWT",
+          "jwt"
+        ],
+        "target_modules": [
+          "jwt"
+        ]
+      },
+      "pylama": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pylama:1.0",
+        "target_distributions": [
+          "pylama"
+        ],
+        "target_modules": [
+          "pylama"
+        ]
+      },
+      "pyperclip": {
+        "generation_image": "nl2repo-claude-code:2.1.263-py3.10",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pyperclip:1.0",
+        "target_distributions": [
+          "pyperclip"
+        ],
+        "target_modules": [
+          "pyperclip"
+        ],
+        "python_version": "3.10"
+      },
+      "pypinyin": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pypinyin:1.0",
+        "target_distributions": [
+          "pypinyin"
+        ],
+        "target_modules": [
+          "pypinyin"
+        ]
+      },
+      "pyquery": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pyquery:1.0",
+        "target_distributions": [
+          "pyquery"
+        ],
+        "target_modules": [
+          "pyquery"
+        ]
+      },
+      "pysondb-v2": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pysondb-v2:1.0",
+        "target_distributions": [
+          "pysondb",
+          "pysondb-v2"
+        ],
+        "target_modules": [
+          "pysondb"
+        ]
+      },
+      "pytest-cov": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pytest-cov:1.0",
+        "target_distributions": [
+          "pytest-cov"
+        ],
+        "target_modules": [
+          "pytest_cov"
+        ]
+      },
+      "pytestify": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pytestify:1.0",
+        "target_distributions": [
+          "pytestify"
+        ],
+        "target_modules": [
+          "pytestify"
+        ]
+      },
+      "python-dotenv": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-dotenv:1.0",
+        "target_distributions": [
+          "python-dotenv"
+        ],
+        "target_modules": [
+          "dotenv"
+        ]
+      },
+      "python-fsutil": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-fsutil:1.0",
+        "target_distributions": [
+          "python-fsutil"
+        ],
+        "target_modules": [
+          "fsutil"
+        ]
+      },
+      "python-jose": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-jose:1.0",
+        "target_distributions": [
+          "python-jose"
+        ],
+        "target_modules": [
+          "jose"
+        ]
+      },
+      "python-pathspec": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-pathspec:1.0",
+        "target_distributions": [
+          "pathspec"
+        ],
+        "target_modules": [
+          "pathspec"
+        ]
+      },
+      "python-patterns": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-patterns:1.0",
+        "target_distributions": [
+          "python-patterns"
+        ],
+        "target_modules": [
+          "patterns"
+        ]
+      },
+      "python-pytest-cases": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-pytest-cases:1.0",
+        "target_distributions": [
+          "pytest-cases"
+        ],
+        "target_modules": [
+          "pytest_cases"
+        ]
+      },
+      "python-slugify": {
+        "generation_image": "nl2repo-claude-code:2.1.263-py3.10",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/python-slugify:1.0",
+        "target_distributions": [
+          "python-slugify"
+        ],
+        "target_modules": [
+          "slugify"
+        ],
+        "python_version": "3.10"
+      },
+      "pythonprojecttemplate": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pythonprojecttemplate:1.0",
+        "target_distributions": [
+          "fastvector"
+        ],
+        "target_modules": [
+          "fastvector"
+        ]
+      },
+      "pytorch-grad-cam": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pytorch-grad-cam:1.0",
+        "target_distributions": [
+          "grad-cam"
+        ],
+        "target_modules": [
+          "pytorch_grad_cam"
+        ]
+      },
+      "pytz": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/pytz:1.0",
+        "target_distributions": [
+          "pytz"
+        ],
+        "target_modules": [
+          "pytz"
+        ]
+      },
+      "records": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/records:1.0",
+        "target_distributions": [
+          "records"
+        ],
+        "target_modules": [
+          "records"
+        ]
+      },
+      "requests-html": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/requests-html:1.0",
+        "target_distributions": [
+          "requests-html"
+        ],
+        "target_modules": [
+          "requests_html"
+        ]
+      },
+      "retrying": {
+        "generation_image": "nl2repo-claude-code:2.1.263-py3.10",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/retrying:1.0",
+        "target_distributions": [
+          "retrying"
+        ],
+        "target_modules": [
+          "retrying"
+        ],
+        "python_version": "3.10"
+      },
+      "rich-click": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/rich-click:1.0",
+        "target_distributions": [
+          "rich-click"
+        ],
+        "target_modules": [
+          "rich_click"
+        ]
+      },
+      "schedule-master": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/schedule-master:1.0",
+        "target_distributions": [
+          "schedule"
+        ],
+        "target_modules": [
+          "schedule"
+        ]
+      },
+      "schema": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/schema:1.0",
+        "target_distributions": [
+          "schema"
+        ],
+        "target_modules": [
+          "schema"
+        ]
+      },
+      "six": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/six:1.0",
+        "target_distributions": [
+          "six"
+        ],
+        "target_modules": [
+          "six"
+        ],
+        "python_version": "3.12"
+      },
+      "sklearn": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/sklearn:1.0",
+        "target_distributions": [
+          "sklearn-pandas"
+        ],
+        "target_modules": [
+          "sklearn_pandas"
+        ]
+      },
+      "sortedcontainers": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/sortedcontainers:1.0",
+        "target_distributions": [
+          "sortedcontainers"
+        ],
+        "target_modules": [
+          "sortedcontainers"
+        ]
+      },
+      "sqlparse": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/sqlparse:1.0",
+        "target_distributions": [
+          "sqlparse"
+        ],
+        "target_modules": [
+          "sqlparse"
+        ]
+      },
+      "stable-baselines3": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/stable-baselines3:1.0",
+        "target_distributions": [
+          "stable-baselines3"
+        ],
+        "target_modules": [
+          "stable_baselines3"
+        ]
+      },
+      "stamina": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/stamina:1.0",
+        "target_distributions": [
+          "stamina"
+        ],
+        "target_modules": [
+          "stamina"
+        ]
+      },
+      "structlog": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/structlog:1.0",
+        "target_distributions": [
+          "structlog"
+        ],
+        "target_modules": [
+          "structlog"
+        ]
+      },
+      "synthetic": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/synthetic:1.0",
+        "target_distributions": [
+          "synthetic-data-kit"
+        ],
+        "target_modules": [
+          "synthetic_data_kit"
+        ]
+      },
+      "tablib": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/tablib:1.0",
+        "target_distributions": [
+          "tablib"
+        ],
+        "target_modules": [
+          "tablib"
+        ]
+      },
+      "tenacity": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/tenacity:1.0",
+        "target_distributions": [
+          "tenacity"
+        ],
+        "target_modules": [
+          "tenacity"
+        ]
+      },
+      "tinydb": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/tinydb:1.0",
+        "target_distributions": [
+          "tinydb"
+        ],
+        "target_modules": [
+          "tinydb"
+        ]
+      },
+      "tqdm": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/tqdm:1.0",
+        "target_distributions": [
+          "tqdm"
+        ],
+        "target_modules": [
+          "tqdm"
+        ]
+      },
+      "trimming": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/trimming:1.0",
+        "target_distributions": [
+          "csv-trimming"
+        ],
+        "target_modules": [
+          "csv_trimming"
+        ]
+      },
+      "tsfresh": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/tsfresh:1.0",
+        "target_distributions": [
+          "tsfresh"
+        ],
+        "target_modules": [
+          "tsfresh"
+        ]
+      },
+      "typing_extensions": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/typing_extensions:1.0",
+        "target_distributions": [
+          "typing_extensions"
+        ],
+        "target_modules": [
+          "typing_extensions"
+        ]
+      },
+      "uiautomator": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/uiautomator:1.0",
+        "target_distributions": [
+          "uiautomator"
+        ],
+        "target_modules": [
+          "uiautomator"
+        ]
+      },
+      "unidecode": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/unidecode:1.0",
+        "target_distributions": [
+          "unidecode"
+        ],
+        "target_modules": [
+          "unidecode"
+        ]
+      },
+      "unittest-parametrize": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/unittest-parametrize:1.0",
+        "target_distributions": [
+          "unittest-parametrize"
+        ],
+        "target_modules": [
+          "unittest_parametrize"
+        ]
+      },
+      "verifiers": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/verifiers:1.0",
+        "target_distributions": [
+          "verifiers"
+        ],
+        "target_modules": [
+          "verifiers"
+        ]
+      },
+      "voluptuous": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/voluptuous:1.0",
+        "target_distributions": [
+          "voluptuous"
+        ],
+        "target_modules": [
+          "voluptuous"
+        ]
+      },
+      "wifiphisher": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/wifiphisher:1.0",
+        "target_distributions": [
+          "wifiphisher"
+        ],
+        "target_modules": [
+          "wifiphisher"
+        ]
+      },
+      "wsgidav": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/wsgidav:1.0",
+        "target_distributions": [
+          "wsgidav"
+        ],
+        "target_modules": [
+          "wsgidav"
+        ]
+      },
+      "xlrd": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/xlrd:1.0",
+        "target_distributions": [
+          "xlrd"
+        ],
+        "target_modules": [
+          "xlrd"
+        ]
+      },
+      "ydata-profiling": {
+        "generation_image": "nl2repo-claude-code:2.1.263",
+        "grading_image": "ghcr.io/multimodal-art-projection/nl2repobench/ydata-profiling:1.0",
+        "target_distributions": [
+          "ydata-profiling"
+        ],
+        "target_modules": [
+          "ydata_profiling"
+        ]
+      }
+    },
+    "check_image_residue": false
+  },
+  "startPro": [
+    {
+      "moduleName": "repo-model",
+      "baseUrl": "http://host.docker.internal:4000",
+      "apiKeyEnv": "NL2REPO_API_KEY",
+      "proNameList": [
+        "*"
+      ]
+    }
+  ],
+  "max_pool_size": 16
+}

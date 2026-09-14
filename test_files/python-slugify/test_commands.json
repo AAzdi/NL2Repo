@@ -1,1 +1,5 @@
-["pip install -e .","pytest --continue-on-collection-errors test.py"]
+[
+  "pip install -e .",
+  "python -m pip install Unidecode==1.4.0",
+  "pytest --continue-on-collection-errors test.py"
+]

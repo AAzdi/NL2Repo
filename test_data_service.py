@@ -13,12 +13,11 @@ class TestData:
 
     """
 
-    def __init__(self, pro_name, test_case_count, test_shell, py_test_file_list, image_tar, md):
+    def __init__(self, pro_name, test_case_count, test_shell, py_test_file_list, md):
         self.proName = pro_name
         self.testCaseCount = test_case_count
         self.testShell = test_shell
         self.pyTestFileList = py_test_file_list
-        self.imageTar = image_tar
         self.md = md
 
 
@@ -81,15 +80,6 @@ def read_all_test_data():
             else:
                 logger.warning(f"Project {project_folder} is missing json file with files")
 
-            # Obtain tar file path(Optional, the image can also be pulled from remote)
-            image_tar = ""
-            tar_files = [f for f in files_in_project if f.endswith('.tar')]
-            if tar_files:
-                image_tar = os.path.join(project_path, tar_files[0])
-                logger.info(f"Project {project_folder} has image tar file: {image_tar} (from file: {tar_files[0]})")
-            else:
-                logger.warning(f"Project {project_folder} is missing tar file")
-
             # Obtain md file path(Optional)
             md = ""
             md_files = [f for f in files_in_project if f.endswith('.md')]
@@ -105,7 +95,6 @@ def read_all_test_data():
                 test_case_count=test_case_count,
                 test_shell=test_shell,
                 py_test_file_list=py_test_file_list,
-                image_tar=image_tar,
                 md=md
             )
 

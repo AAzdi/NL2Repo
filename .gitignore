@@ -1,0 +1,29 @@
+# Local configuration and credentials
+.nl2repo-local/
+.env
+.env.*
+*.env
+!*.env.example
+!.env.example
+
+# Python environments and generated caches
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Evaluation outputs
+logs/
+result/
+workspaces/
+experiments/
+
+# Editor and OS files
+.DS_Store
+*.swp
+*.swo

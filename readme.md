@@ -1,60 +1,70 @@
-# Nl2RepoBench
+# NL2RepoBench
 
-## Project Overview
+NL2RepoBench evaluates LLMs and coding agents on long-horizon tasks that generate
+complete, runnable repositories from scratch. It contains 104 tasks with reference
+tests and task-specific Docker environments.
 
-NL2Repo is a benchmark designed to evaluate the performance of Large Language Models (LLMs) and coding agents on **long-horizon tasks** that require generating a **complete, runnable code repository from scratch (0-to-1)**. The benchmark consists of **104 distinct tasks**, each paired with its own testing environment.
+## Setup
 
-## Running the Code
+The benchmark runs Claude Code with isolated generation and grading containers.
+Install Docker and prepare a Python 3.12 environment:
 
-The current setup runs OpenHands in **headless batch mode**. Model behavior is controlled via the `config.toml` file. If you need to change the model configuration, please modify `config.toml` **before** starting the run.
-
-The system currently uses a **file-to-file** execution workflow and manages Docker containers via **python-on-whales**. At the moment, **only local execution is supported**.
-
-> **Note:** When running in headless mode across multiple machines, you must set up shared file management (e.g., NFS) or manually transfer files to the target machines in advance.
-
-### Prerequisites
-
-Before starting, ensure that Docker is installed locally and that the following images are available:
-
-- `docker.all-hands.dev/all-hands-ai/openhands:0.56`
-- `docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik`
-
-The runtime image can be customized. The default image is sufficient for running Python-based tasks and comes with **Python 3.12** preinstalled. If you need to support other languages, you can build your own runtime image and update the corresponding configuration in `openhands/openhands_app.py` (line 176).
-
-## Data Layout
-
-1. The `test_files` directory contains all repository-related task data, including:
-   - A `.txt` file specifying the number of test cases
-   - The repository documentation in `.md` format
-   - Two `.json` files used for testing
-
-2. All Docker volume mounts used for headless execution are stored in the `workspaces` directory. Each task is assigned a **unique UUID directory**. The task-specific configuration file is copied from a template and modified accordingly (mainly to mount the workspace directory into the runtime container).
-
-3. Final results are saved in the `result` directory. Each task produces a single aggregated `.json` file, named using the task’s randomly generated UUID.
-
-4. The project is launched using a `config.json` file. A sample configuration is shown below:
-
-```json
-{
-  "startPro": [
-    {
-      "moduleName": "",
-      "baseUrl": "",
-      "sk": "",
-      "proNameList": [
-        "math-verify"
-      ]
-    }
-  ],
-  "max_pool_size": 20
-}
+```bash
+python3.12 -m venv .nl2repo-local/venv
+.nl2repo-local/venv/bin/pip install -r requirements.txt
 ```
 
-### Configuration Fields
+Follow the [runtime setup guide](claude_code/README.zh-CN.md) to build the Claude
+Code image, configure task images, and provide private Phoenix gateway settings.
+Private configuration and credentials belong in `.nl2repo-local/`, which Git ignores.
 
-- **startPro**: A list of task nodes.
-  - Each node corresponds to a single model configuration.
-  - **proNameList**: A list of task names, which must match the subdirectory names under `test_files`.
+## Run an evaluation
 
-- **max_pool_size**: The maximum number of concurrent threads. Once this limit is reached, additional tasks will be queued until resources become available.
+For Claude Code through Phoenix + SGLang:
 
+```bash
+PHOENIX_DOMAIN_PROXY='proxy_MODEL_HOST:PORT' ./eval.sh \
+  --name phoenix-smoke-001 --tasks six --concurrency 1
+```
+
+Choose a new experiment name for every run. Results and gateway/benchmark logs go
+to `experiments/<name>/`. Add `--dry-run` to preview without starting containers
+or a gateway. See the [evaluation guide](eval.README.zh-CN.md) for model overrides,
+full evaluations, direct mode, and stopping runs.
+
+To use an already configured endpoint directly:
+
+```bash
+.nl2repo-local/venv/bin/python main.py --config config.claude_code.json \
+  --experiment-name direct-001 --output-dir experiments
+```
+
+`main.py` defaults to `config.claude_code.json`. Configure the endpoint and
+credentials before using this lower-level entrypoint; `eval.sh` prepares them
+for each run automatically.
+
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `claude_code/` | Launcher, generation runtime, model/dependency channels, trajectory capture |
+| `grading/` | Artifact installation checks, reference test preparation, scoring |
+| `docker_self/` | Docker operations used by the grader |
+| `test_files/` | Task descriptions, test commands, reference file lists, test counts |
+| `tests/` | Regression tests and optional Docker integration tests |
+| `config.claude_code.json` | Task selection, concurrency, generation and grading images |
+| `experiments/` | Local experiment configurations, logs, results, and generated workspaces |
+
+`logs/`, `result/`, and `workspaces/` may contain outputs from direct or earlier
+runs. Generated outputs and Python caches are ignored by Git.
+
+## Verify
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 LITELLM_LOCAL_MODEL_COST_MAP=True \
+  .nl2repo-local/venv/bin/python -m unittest discover -s tests -v
+```
+
+The default suite uses local mock services. Set `NL2REPO_TEST_DOCKER=1` to include
+integration tests that require Docker and prepared task/CLI images. See the
+[integrity guide](claude_code/README.integrity.zh-CN.md) for isolation and grading rules.

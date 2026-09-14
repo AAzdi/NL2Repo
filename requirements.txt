@@ -1,4 +1,2 @@
-socketio
-python_on_whales
-openhands
-pydantic
+litellm[proxy]==1.100.0
+python-on-whales==0.81.0

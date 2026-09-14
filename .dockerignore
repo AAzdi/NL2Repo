@@ -1,0 +1,5 @@
+# The Claude Code image only uses base images and installs the CLI.
+# Keep private configuration, task data and experiment outputs out of the context.
+**
+!claude_code/
+!claude_code/Dockerfile
