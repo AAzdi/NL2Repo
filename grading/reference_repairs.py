@@ -9,7 +9,7 @@ import sys
 import site
 from email.parser import Parser
 
-REVISION = 'h100-grading-20260911-v1'
+REVISION = 'h100-grading-20260915-v2'
 
 
 def replace(path, old, new):
@@ -35,7 +35,7 @@ def installed_reference_version(project):
 def repair(root, project, reference_version=None):
     root = Path(root)
     changed = []
-    if project == 'pylama':
+    if project in ('pylama', 'python-pytest-cases'):
         # Its reference setup.py imports pkg_resources. Bind the build tool
         # version instead of letting an isolated build choose an incompatible one.
         if 'import pkg_resources' not in (root / 'setup.py').read_text():
@@ -44,6 +44,14 @@ def repair(root, project, reference_version=None):
             '[build-system]\nrequires = ["setuptools==80.9.0", "wheel"]\n'
             'build-backend = "setuptools.build_meta"\n')
         changed.append('pyproject.toml')
+    elif project == 'box':
+        # The reference installer opportunistically compiles every .py file
+        # when Cython happens to be installed. Grade the submitted Python
+        # implementation using the installer's existing pure-Python fallback.
+        replace(root / 'setup.py',
+                '    from Cython.Build import cythonize\n',
+                '    raise ImportError("Reference grading uses pure Python")\n')
+        changed.append('setup.py')
     elif project == 'tenacity':
         # Official base has build-system only, with no package metadata at all.
         if (root / 'setup.cfg').exists() or (root / 'setup.py').exists():

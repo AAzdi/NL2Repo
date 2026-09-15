@@ -1,1 +1,4 @@
-["pytest --continue-on-collection-errors -v"]
+[
+  "env PYTHONPATH=/workspace/src:/workspace python -c \"from importlib.util import find_spec; from pathlib import Path; spec = find_spec('pytz'); assert spec and spec.origin and Path('/workspace') in Path(spec.origin).resolve().parents, 'pytz must resolve to the candidate workspace'; print('pytz candidate:', spec.origin)\"",
+  "env PYTHONPATH=/workspace/src:/workspace pytest --continue-on-collection-errors -v test_docs.py test_lazy.py test_tzinfo.py"
+]

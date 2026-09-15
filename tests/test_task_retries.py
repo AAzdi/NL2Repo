@@ -143,7 +143,7 @@ class TaskRetryTests(unittest.TestCase):
                 self.assertEqual(result['task_attempt_count'], 1)
                 self.assertEqual(result['generation_retry_stop_reason'], 'generation_already_started')
                 self.assertEqual(result['status'], 'failed')
-                self.assertFalse(result['score_valid'])
+                self.assertTrue(result['score_valid'])
                 self.assertEqual(result['failure_kind'], 'upstream_api_error' if event else 'generation_error')
                 root = Path(result['workspace_path']).parent
                 self.assertEqual((root / 'workspace/partial.py').read_text(), 'keep existing progress')

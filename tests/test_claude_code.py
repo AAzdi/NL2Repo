@@ -6,6 +6,7 @@ import runpy
 import subprocess
 import sys
 import tempfile
+import threading
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -186,6 +187,51 @@ class ClaudeCodeTests(unittest.TestCase):
                     self.assertEqual(json.loads(Path(result['trajectory_path']).read_text())['generation_status'],
                                      'failed')
                 evaluate.assert_called_once()
+
+    def test_positive_scores_survive_generation_and_evaluation_failures(self):
+        for generation_ok, grading_ok, passed, expected_valid in (
+                (False, True, 276, True),
+                (True, False, 17, True),
+                (False, False, 40, True),
+                (True, True, 0, True),
+                (False, True, 0, False),
+                (True, False, 0, False)):
+            event = dict(type='result', subtype='success', is_error=not generation_ok,
+                         stop_reason='end_turn')
+            post = {'status': 'success' if grading_ok else 'error',
+                    'score_valid': grading_ok, 'evaluation_valid': grading_ok,
+                    'artifact_install': {'status': 'success'},
+                    'pytest_results': {'passed': passed}}
+            with self.subTest(generation_ok=generation_ok, grading_ok=grading_ok, passed=passed), \
+                    patch.object(runner.subprocess, 'run', side_effect=self.fake_docker(event)), \
+                    patch.object(runner, 'evaluate', return_value=post):
+                result = runner.run_task(self.pro, self.data, {})
+                self.assertEqual(result['score'], passed)
+                self.assertEqual(result['score_valid'], expected_valid)
+                self.assertEqual(result['evaluation_valid'], generation_ok and grading_ok)
+                self.assertEqual(result['status'], 'completed' if generation_ok and grading_ok else 'failed')
+                self.assertEqual(result['post_process_result']['score_valid'], grading_ok)
+                for path in (Path('result', result['task_uuid'] + '.json'),
+                             Path(result['workspace_path']).parent / 'task_state.json'):
+                    self.assertEqual(json.loads(path.read_text())['score_valid'], expected_valid)
+
+    def test_interruption_after_scoring_preserves_positive_score(self):
+        cancel = threading.Event()
+
+        def evaluate(*args, **kwargs):
+            cancel.set()
+            return {'status': 'error', 'score_valid': False, 'evaluation_valid': False,
+                    'artifact_install': {'status': 'success'}, 'pytest_results': {'passed': 17}}
+
+        event = dict(type='result', subtype='success', is_error=False, stop_reason='end_turn')
+        with patch.object(runner.subprocess, 'run', side_effect=self.fake_docker(event)), \
+                patch.object(runner, 'evaluate', side_effect=evaluate):
+            result = runner.run_task(self.pro, self.data, {}, cancel=cancel)
+        self.assertEqual(result['status'], 'interrupted')
+        self.assertEqual(result['score'], 17)
+        self.assertEqual(result['test_score'], 17)
+        self.assertTrue(result['score_valid'])
+        self.assertFalse(result['evaluation_valid'])
 
     def test_truncated_success_is_failed_in_result_and_trajectory(self):
         for stop_reason in (None, 'tool_use', 'max_tokens'):
@@ -420,6 +466,9 @@ class ClaudeCodeTests(unittest.TestCase):
         self.assertFalse(Path('result').exists())
         self.assertEqual(config['claude_code'], {})
         self.assertEqual(config['startPro'][0]['proNameList'], ['*'])
+        self.assertEqual(len(json.loads((root / 'task-plan.json').read_text())['tasks']), 2)
+        self.assertEqual(json.loads((root / 'report.json').read_text())['metrics']['task_count'], 2)
+        self.assertTrue((root / 'report.md').exists())
 
     def test_explicit_task_selection_and_legacy_paths(self):
         with patch.object(test_data_service, 'test_data_list', [self.data]), \
@@ -432,6 +481,40 @@ class ClaudeCodeTests(unittest.TestCase):
         self.assertEqual(runner.experiment_directory({'experiment_name': 'trial'}), Path.cwd() / 'trial')
         absolute = str(Path('external').resolve())
         self.assertEqual(runner.experiment_directory({'output_dir': absolute}), Path(absolute))
+
+    def test_automatic_report_includes_preparation_failure_in_full_denominator(self):
+        self.data.testCaseCount = 10
+        other = SimpleNamespace(proName='other', md=self.data.md, testCaseCount=100)
+
+        def prepare(options, name):
+            if name == 'other':
+                raise ValueError('invalid image')
+            return {'generation_image': 'generation', 'grading_image': 'grading'}
+
+        with patch.object(test_data_service, 'test_data_list', [self.data, other]), \
+                patch.object(runner, 'offline_environment', side_effect=prepare), \
+                patch.object(runner.subprocess, 'run', side_effect=self.fake_docker(
+                    dict(type='result', subtype='success', is_error=False, stop_reason='end_turn'))), \
+                patch.object(runner, 'evaluate', return_value={
+                    'status': 'error', 'score_valid': False, 'evaluation_valid': False,
+                    'artifact_install': {'status': 'success'}, 'pytest_results': {'passed': 5}}):
+            runner.start_claude_code({'startPro': [{**self.pro, 'proNameList': ['*']}]})
+        report = json.loads(Path('report.json').read_text())
+        self.assertEqual(report['metrics']['task_count'], 2)
+        self.assertEqual(report['metrics']['full_task_average_score'], 0.25)
+        self.assertEqual(report['metrics']['evaluated_task_count'], 1)
+        self.assertEqual(report['metrics']['status_counts'], {'error': 1, 'failed': 1})
+        self.assertEqual(sorted(row['official_total'] for row in report['tasks']), [10, 100])
+
+    def test_uncaught_worker_exception_still_writes_full_report(self):
+        with patch.object(test_data_service, 'test_data_list', [self.data]), \
+                patch.object(runner, 'run_task', side_effect=RuntimeError('worker failed')), \
+                self.assertRaisesRegex(RuntimeError, 'worker failed'):
+            runner.start_claude_code({'startPro': [{**self.pro, 'proNameList': ['six']}]})
+        report = json.loads(Path('report.json').read_text())
+        self.assertEqual(report['metrics']['task_count'], 1)
+        self.assertEqual(report['metrics']['full_task_average_score'], 0)
+        self.assertEqual(report['run']['status'], 'failed')
 
     def test_invalid_experiment_or_selection_rejected_before_launch(self):
         invalid = [

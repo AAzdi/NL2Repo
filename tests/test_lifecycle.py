@@ -43,6 +43,10 @@ assert signal.getsignal(signal.SIGTERM) == before
                 results = list((Path(directory) / 'workspaces').glob('*/task_state.json'))
                 self.assertEqual(len(results), 2)
                 self.assertTrue(all(json.loads(p.read_text())['status'] == 'interrupted' for p in results))
+                report = json.loads((Path(directory) / 'report.json').read_text())
+                self.assertEqual(report['metrics']['task_count'], 2)
+                self.assertEqual(report['metrics']['full_task_average_score'], 0)
+                self.assertEqual(report['run']['status'], 'interrupted')
             finally:
                 if process.poll() is None:
                     process.kill()

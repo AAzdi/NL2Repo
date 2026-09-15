@@ -1,5 +1,41 @@
 # H100-all-002 评测修复
 
+## H100-all-005 增补（2026-09-15）
+
+当前修复版本为 `h100-grading-20260915-v2`，包含下面的增补及原有修复。
+
+### 部分成绩计入（按后续用户要求）
+
+只要评测记录中有正分就计入，即使命令超时、任务失败或缺少最终汇总。解析器现在可从有会话/收集标题的 pytest 标准进度中恢复已完成结果，支持紧凑进度及带 node ID 的详细进度；完整汇总优先，详细进度按 node ID 去重，忽略失败详情，拒绝无法消歧的重绘或嵌套会话。不会直接统计任意输出中的点号。
+
+恢复结果写入 `pytest_results.partial_progress`；`summary_complete`、嵌套 `score_valid` 与执行故障仍如实记录，runner 已有的正分规则负责将通过数计入顶层成绩。重试不累加。修复后的官方测试结果覆盖旧的错误测试范围；pytz 旧输出含候选自测，不能从中恢复成绩。
+
+H100-all-005 新增恢复 boltons=138、cachier=50、databases=30、tenacity=13，共 231 项；合并此前四项修复补评后，全量 104 项平均为 **42.5379%**，通过数 **6385**。本轮没有重跑模型或测试。
+
+- `autorccar`：原始参考镜像没有 setup.py/pyproject.toml，参考测试阶段直接运行 `test`。候选产物仍由独立 artifact_install 阶段验证安装。
+- `box`：参考安装脚本使用已有的纯 Python 回退路径，避免因为评测镜像预装 Cython 就强制编译候选 Python 源码。
+- `mechanicalsoup`：参考安装脚本依赖候选不必提供的描述元数据，且原镜像缺少其引用的 requirements.txt；参考阶段直接运行 `tests`，候选安装仍单独检查。
+- `python-pytest-cases`：参考隔离构建固定 `setuptools==80.9.0`，保留 setup.py 需要的 pkg_resources。
+- `pytz`：只执行参考镜像的 `test_docs.py test_lazy.py test_tzinfo.py`，排除候选自带 tests。显式设置 `/workspace/src:/workspace` 并检查 pytz 来源，避免加载镜像残留的官方包。
+
+H100-all-005 原候选的独立参考评测验证得到：autorccar 6/13、box 60/147、mechanicalsoup 83/121、pytz 3/235。python-pytest-cases 隔离安装成功，但候选随后因导入不存在的 pytest 私有 API 而失败。没有修改候选实现或覆盖历史成绩。
+
+### 推送后在新机器上运行
+
+修复保存在仓库源码中，不依赖本机临时容器、Docker commit、验证镜像或实验目录里的 wheel 缓存。请一并提交：
+
+- `grading/reference_repairs.py`、`grading/post_processor.py`
+- `test_files/autorccar/test_commands.json`
+- `test_files/mechanicalsoup/test_commands.json`
+- `test_files/pytz/test_commands.json`
+- `tests/test_grading_repairs.py` 和本文档
+
+正常启动评测时，`test_data_service.py` 从仓库的 `test_files/` 读取命令；`post_process_task` 每次构建派生镜像时复制并执行仓库中的 reference_repairs.py，然后才复制候选源码。因此，新机器拉取基础镜像后会自动重新应用修复，无需手工修改或重新发布基础镜像。需要正常的依赖代理访问来取得固定构建工具版本；本地验证 wheel 只用于断网验证。
+
+检查新结果的 `post_process_result.reference_repairs_revision` 是否为 `h100-grading-20260915-v2`，并检查构建日志的 `reference_repairs.files` 和执行命令，即可确认生效。已有结果不会自动重算，须重新评测。若同名基础镜像未来改变参考文件布局，严格匹配修复可能报错，需要适配新镜像；修复可迁移不代表任意镜像版本或新候选都能得到同一分数。
+
+---
+
 修复版本：`h100-grading-20260911-v1`。
 
 本次修复只改评测工具和参考环境，不修改 agent 生成的实现，也不覆盖历史结果。参考文件修复在派生评测镜像中、复制候选源码之前执行，原始镜像不变。新结果记录 `reference_repairs_revision`，构建日志记录具体修改文件。

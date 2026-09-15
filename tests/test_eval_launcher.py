@@ -309,6 +309,10 @@ class EvalLauncherTests(unittest.TestCase):
         state = json.loads((directory / 'run-state.json').read_text())
         self.assertEqual(state['status'], 'failed')
         self.assertNotIn('benchmark_pid', state)
+        report = json.loads((directory / 'report.json').read_text())
+        self.assertEqual(report['metrics']['task_count'], plan['task_count'])
+        self.assertEqual(report['metrics']['full_task_average_score'], 0)
+        self.assertEqual(report['run']['status'], 'failed')
 
     def test_success_closes_only_own_gateway_and_records_state(self):
         plan, env = launch.prepare(self.args('--gateway-port', '4002'))
@@ -326,6 +330,8 @@ class EvalLauncherTests(unittest.TestCase):
         state = json.loads((directory / 'run-state.json').read_text())
         self.assertEqual(state['status'], 'completed')
         self.assertEqual(state['benchmark_pid'], benchmark.pid)
+        self.assertEqual(state['report_path'], str(directory / 'report.md'))
+        self.assertEqual(state['full_task_average_score'], 0)
         gateway_env = popen.call_args_list[0].kwargs['env']
         self.assertEqual(gateway_env['AIOHTTP_SO_KEEPALIVE'], 'true')
         self.assertEqual(popen.call_args_list[1].args[0][-1], str(directory / 'config.json'))
@@ -340,6 +346,19 @@ class EvalLauncherTests(unittest.TestCase):
         self.assertEqual(popen.call_count, 1)
         self.assertIn('main.py', popen.call_args.args[0][1])
         self.assertEqual(json.loads((directory / 'run-state.json').read_text())['status'], 'failed')
+
+    def test_report_write_failure_is_recorded_and_returns_failure(self):
+        plan, env = launch.prepare(self.args('--mode', 'direct'))
+        directory = self.save_plan(plan)
+        benchmark = Mock(pid=4322, returncode=0)
+        benchmark.poll.return_value = 0
+        with patch.object(launch.subprocess, 'Popen', return_value=benchmark), \
+                patch.object(launch, 'write_report', side_effect=OSError('disk full')):
+            self.assertEqual(launch.supervise(plan, env), 1)
+        state = json.loads((directory / 'run-state.json').read_text())
+        self.assertEqual(state['report_error'], 'disk full')
+        self.assertEqual(state['status'], 'failed')
+        self.assertEqual(state['exit_code'], 1)
 
     def test_busy_port_does_not_create_experiment_or_start_process(self):
         fake_socket = Mock()

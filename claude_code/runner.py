@@ -21,6 +21,7 @@ from claude_code.model_channel import model_channel
 from claude_code.offline import offline_environment
 from claude_code.dependency_channel import dependency_channel
 from claude_code.generation import token_limits
+from claude_code.report import write_report, report_message
 from claude_code.retries import (retry_options, generation_retry_reason,
     evaluation_retry_reason, transient_exception, wait_before_retry, retry_delay)
 from grading.config import artifact_install_commands
@@ -158,6 +159,7 @@ def initial_result(pro, data, options, task_id):
     result = dict(task_uuid=task_id, module_name=pro['moduleName'], pro_name=data.proName,
                   harness='claude_code', workspace_path=str(task_dir / 'workspace'), status='queued',
                   stage='queued', score=0, test_score=0, score_valid=False, evaluation_valid=False,
+                  official_test_count=getattr(data, 'testCaseCount', None),
                   experiment_name=options.get('experiment_name'), experiment_path=str(root),
                   trajectory_path=str(task_dir / 'trajectory.json'),
                   trajectory_readable_path=str(task_dir / 'trajectory.json'),
@@ -450,7 +452,9 @@ def _run_task_once(pro, data, options, *, task_id=None, cancel=None,
         result['post_process_result'] = post
         result['test_score'] = post.get('pytest_results', {}).get('passed', 0)
         result['score'] = result['test_score']
-        result['score_valid'] = bool(ok and post.get('score_valid', False))
+        # Credit observed passes even when generation or grading failed. Keep
+        # evaluation_valid and failure diagnostics independent of score validity.
+        result['score_valid'] = bool(result['score'] > 0 or (ok and post.get('score_valid', False)))
         result['artifact_install_status'] = post.get('artifact_install', {}).get('status', 'not_checked')
         result['evaluation_valid'] = bool(ok and post.get('status') == 'success'
             and post.get('evaluation_valid', post.get('score_valid', False)
@@ -472,7 +476,11 @@ def _run_task_once(pro, data, options, *, task_id=None, cancel=None,
             raise TaskInterrupted('Experiment interrupted during grading')
     except TaskInterrupted as exc:
         result.update(status='interrupted', failure_kind='interrupted', failure_stage=result.get('stage'),
-                      error=str(exc), score=None, test_score=None, score_valid=False, evaluation_valid=False)
+                      error=str(exc), evaluation_valid=False)
+        if (result.get('score') or 0) > 0:
+            result['score_valid'] = True
+        else:
+            result.update(score=None, test_score=None, score_valid=False)
         if result.get('generation_status') in (None, 'queued', 'running'):
             result['generation_status'] = 'interrupted'
     except Exception as exc:
@@ -541,6 +549,13 @@ def start_claude_code(config):
                     for sig in (signal.SIGTERM, signal.SIGINT)}
     planned = [(pro, data, task_identity(data)) for pro, data in jobs]
     try:
+        # Snapshot the entire run before any worker starts, including the
+        # official denominators for tasks that never reach grading.
+        atomic_json(experiment_dir / 'task-plan.json', {
+            'schema_version': 1, 'created_at': now(), 'tasks': [
+                dict(task_uuid=task_id, module_name=pro['moduleName'], pro_name=data.proName,
+                     official_test_count=getattr(data, 'testCaseCount', None))
+                for pro, data, task_id in planned]})
         for pro, data, task_id in planned:
             initial_result(pro, data, options, task_id)
         logger.info('Running %d tasks; experiment=%s; output=%s',
@@ -557,3 +572,5 @@ def start_claude_code(config):
         finally:
             for sig, handler in previous.items():
                 signal.signal(sig, handler)
+            report = write_report(experiment_dir)
+            logger.info('%s', report_message(experiment_dir, report))

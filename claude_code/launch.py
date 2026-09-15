@@ -24,6 +24,7 @@ from claude_code.phoenix_config import (PHOENIX_API_BASE, ROUTES, default_templa
                                        prepare_phoenix, resolve_environment, routing_mode)
 from claude_code.generation import EFFORTS, template_kwargs, token_limits
 from claude_code.retries import retry_options
+from claude_code.report import write_report, report_message
 from grading.config import artifact_install_commands
 
 
@@ -395,6 +396,17 @@ def supervise(plan, environment):
         if runtime_directory is not None:
             runtime_directory.cleanup()
         state['finished_at'] = timestamp()
+        try:
+            report = write_report(directory, config=plan['config'], run_state=state)
+            state['report_path'] = str(directory / 'report.md')
+            state['full_task_average_score'] = report['metrics']['full_task_average_score']
+            print(report_message(directory, report), flush=True)
+        except Exception as exc:
+            state['report_error'] = str(exc)
+            if code == 0:
+                code = 1
+                state.update(status='failed', exit_code=code)
+            print(f'Failed to generate experiment report: {exc}', file=sys.stderr, flush=True)
         write_json(directory / 'run-state.json', state)
         for sig, handler in previous.items():
             signal.signal(sig, handler)
@@ -439,7 +451,8 @@ def launch(args):
             if state['status'] in ('running', 'completed'):
                 print(f"已启动：{args.name}\n目录：{directory}\n监督进程 PID：{supervisor.pid}\n"
                       f"任务数：{plan['task_count']}；并发：{args.concurrency}；轮数：{args.max_turns}\n"
-                      f"状态：{state_path}\n日志：{directory / 'benchmark.log'}")
+                      f"状态：{state_path}\n日志：{directory / 'benchmark.log'}\n"
+                      f"结束后报告：{directory / 'report.md'}")
                 return 0
             if state['status'] in ('failed', 'interrupted'):
                 raise RuntimeError(f"Startup failed; see {state_path} and gateway.log / benchmark.log")

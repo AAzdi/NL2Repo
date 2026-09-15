@@ -7,10 +7,50 @@ import sys
 import tempfile
 import unittest
 
-from grading.post_processor import analyze_pytest_results
+from grading.post_processor import analyze_pytest_results, pytest_progress_counts
 
 
 class PytestResultsTests(unittest.TestCase):
+    HEADER = '================ test session starts ================\ncollected 20 items\n'
+
+    def test_timeout_recovers_compact_progress_without_claiming_completion(self):
+        result = analyze_pytest_results([dict(command='pytest tests', status='timeout',
+            exit_code=None, output=self.HEADER + 'tests/test_one.py ..F [ 15%]\n'
+            '..Fs [ 35%]\ntests/test_two.py .F')], 20, logging.getLogger())
+        self.assertEqual((result['passed'], result['failed'], result['skipped']), (5, 3, 1))
+        self.assertFalse(result['summary_complete'])
+        self.assertFalse(result['score_valid'])  # Runner separately credits any positive count.
+        self.assertTrue(result['coverage_limited'])
+        self.assertIn('abnormal_exit', result['invalid_reasons'])
+
+    def test_verbose_progress_handles_stdout_and_deduplicates_nodeids(self):
+        output = self.HEADER + ('tests/test_one.py::test_a PASSED\n'
+            'tests/test_one.py::test_a PASSED\n'
+            'tests/test_one.py::test_b[param] application output\nmore output\n'
+            '\x1b[32mPASSED\x1b[0m\n'
+            'tests/test_one.py::test_c FAILED [ 15%]\n'
+            'tests/test_one.py::test_hanging ')
+        counts = pytest_progress_counts(output)
+        self.assertEqual((counts['passed'], counts['failed']), (2, 1))
+
+    def test_summary_overrides_progress_instead_of_double_counting(self):
+        output = self.HEADER.replace('20 items', '2 items') + (
+            'tests/test_one.py .. [100%]\n2 passed in 0.1s')
+        result = self.analyze([('pytest tests', output)])
+        self.assertEqual(result['passed'], 2)
+        self.assertNotIn('partial_progress', result)
+
+    def test_progress_ignores_details_and_rejects_ambiguous_output(self):
+        output = self.HEADER + ('tests/test_one.py .F [ 10%]\n'
+            '================ FAILURES ================\n'
+            'tests/test_child.py ................\n')
+        self.assertEqual(pytest_progress_counts(output)['passed'], 1)
+        for output in ('tests/test_one.py ...\n', self.HEADER + 'arbitrary ... output\n',
+                       self.HEADER + 'tests/test_one.py .\rtests/test_one.py ..\n',
+                       self.HEADER + 'tests/test_one.py ..\n' + self.HEADER,
+                       self.HEADER.replace('20 items', '1 item') + 'tests/test_one.py ..\n'):
+            self.assertIsNone(pytest_progress_counts(output), output)
+
     def test_verbose_collection_prefix_and_carriage_returns(self):
         for prefix in ('collecting ... collected', 'collecting ...\rcollected',
                        '\x1b[1mcollecting ... \x1b[0mcollected'):

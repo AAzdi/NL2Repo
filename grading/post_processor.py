@@ -259,7 +259,8 @@ def create_dockerfile(workspace_path: str, base_image_tag: str, logger, *, base_
         preparation = ('COPY grading_prepare.py /tmp/nl2repo-grading-prepare.py\n'
                        'RUN python -I -S /tmp/nl2repo-grading-prepare.py\n')
         project = base_image_tag.split(':')[0]
-        if project in ('pylama', 'tenacity', 'deslib', 'pathlib2', 'requests-html'):
+        if project in ('pylama', 'python-pytest-cases', 'box', 'tenacity',
+                       'deslib', 'pathlib2', 'requests-html'):
             for helper in ('reference_repairs.py', 'http_fixture.py'):
                 shutil.copyfile(os.path.join(os.path.dirname(__file__), helper),
                                 os.path.join(dockerfile_dir, helper))
@@ -496,6 +497,84 @@ def is_pytest_command(command):
     return False
 
 
+def pytest_progress_counts(output):
+    """Recover observed outcomes from an unfinished outer pytest session.
+
+    Require a session/collection header and pytest progress syntax. Never count
+    dots in arbitrary output, failure details or nested pytest sessions. Verbose
+    node IDs are deduplicated; compact output is accepted only without redraws.
+    The caller must prefer a final summary whenever one exists.
+    """
+    counts = dict(passed=0, failed=0, errors=0, skipped=0, xfailed=0, xpassed=0)
+    labels = dict(PASSED='passed', FAILED='failed', ERROR='errors',
+                  SKIPPED='skipped', XFAIL='xfailed', XPASS='xpassed')
+    symbols = {'.': 'passed', 'F': 'failed', 'E': 'errors', 's': 'skipped',
+               'x': 'xfailed', 'X': 'xpassed'}
+    text = re.sub(r'\x1b\[[0-9;]*m', '', output)
+    session = False
+    collected = None
+    mode = None
+    pending = None
+    nodes = {}
+    compact_file = False
+    for raw in text.split('\n'):
+        line = raw.strip()
+        if re.fullmatch(r'=+ test session starts =+', line):
+            if session:
+                return None
+            session = True
+            continue
+        if not session:
+            continue
+        if collected is None:
+            match = re.search(r'(?:^|\r|collecting\s*\.\.\.\s*)collected (\d+) items?\b', line)
+            if match:
+                collected = int(match[1])
+            continue
+        if line.strip('= ').strip() in ('FAILURES', 'ERRORS', 'short test summary info'):
+            break
+        if line.startswith(('INTERNALERROR', 'KeyboardInterrupt', '!', 'Timeout (')):
+            break
+        if '\r' in raw:
+            return None  # Redrawn compact progress cannot be deduplicated safely.
+        verbose = re.match(r'^(\S+\.py::\S+)(?:\s+(.*))?$', line)
+        if verbose:
+            if mode == 'compact':
+                return None
+            mode = 'verbose'
+            pending = verbose[1]
+            tail = verbose[2] or ''
+            status = re.fullmatch(r'(?:<- .*? )?(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)'
+                                  r'(?:\s+\[\s*\d+%\])?', tail)
+            if status:
+                nodes[pending] = labels[status[1]]
+                pending = None
+            continue
+        standalone = re.fullmatch(r'(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)'
+                                  r'(?:\s+\[\s*\d+%\])?', line)
+        if pending and standalone:
+            nodes[pending] = labels[standalone[1]]
+            pending = None
+            continue
+        compact = re.fullmatch(r'(\S+\.py)\s+([.FEsxX]+)(?:\s+\[\s*\d+%\])?', line)
+        continuation = (re.fullmatch(r'([.FEsxX]+)\s+\[\s*\d+%\]', line)
+                        if compact_file else None)
+        if compact or continuation:
+            if mode == 'verbose':
+                return None
+            mode = 'compact'
+            compact_file = True
+            for symbol in compact[2] if compact else continuation[1]:
+                counts[symbols[symbol]] += 1
+        elif line:
+            compact_file = False
+    for outcome in nodes.values():
+        counts[outcome] += 1
+    if collected is None or not sum(counts.values()) or sum(counts.values()) > collected:
+        return None
+    return counts
+
+
 def analyze_pytest_results(command_results: List[Dict], total_test_cases: int, logger) -> Dict[str, Any]:
     """
     Analyze pytest command results
@@ -595,6 +674,12 @@ def analyze_pytest_results(command_results: List[Dict], total_test_cases: int, l
                     pytest_results['invalid_reasons'].append('collection_mismatch')
             else:
                 pytest_results['summary_complete'] = False
+                progress = pytest_progress_counts(output)
+                if progress:
+                    for key, count in progress.items():
+                        pytest_results[key] += count
+                    pytest_results.setdefault('partial_progress', []).append(
+                        dict(command=command, **progress))
             if collected is not None:
                 pytest_results['collected'] = (pytest_results['collected'] or 0) + collected
 
@@ -603,7 +688,8 @@ def analyze_pytest_results(command_results: List[Dict], total_test_cases: int, l
         pytest_results['success_rate'] = min(pytest_results['passed'] / pytest_results['total'],1)
     pytest_results['summary_complete'] &= pytest_results['commands'] > 0
     pytest_results['invalid_reasons'] = sorted(set(pytest_results['invalid_reasons']))
-    pytest_results['coverage_limited'] = bool(pytest_results['errors'] or pytest_results['skipped']
+    pytest_results['coverage_limited'] = bool(pytest_results.get('partial_progress')
+        or pytest_results['errors'] or pytest_results['skipped']
         or pytest_results['deselected'] or 'collection_mismatch' in pytest_results['invalid_reasons'])
     pytest_results['score_valid'] = bool(pytest_results['summary_complete']
         and not pytest_results['invalid_reasons'] and total_test_cases > 0)

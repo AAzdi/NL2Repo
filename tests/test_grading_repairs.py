@@ -7,11 +7,25 @@ import tempfile
 import unittest
 import zipfile
 
-from grading.post_processor import analyze_pytest_results, create_workspace_zip, is_pytest_command
+from grading.post_processor import (analyze_pytest_results, create_dockerfile,
+                                    create_workspace_zip, is_pytest_command)
 from grading.reference_repairs import repair
 
 
 class GradingRepairTests(unittest.TestCase):
+    def test_new_image_builds_apply_repairs_before_copying_candidate(self):
+        for project in ('box', 'python-pytest-cases'):
+            with self.subTest(project=project), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                workspace = root/'workspace'
+                workspace.mkdir()
+                dockerfile = Path(create_dockerfile(str(workspace), project + ':1.0',
+                                                    logging.getLogger()))
+                text = dockerfile.read_text()
+                step = 'RUN python -I -S /tmp/reference_repairs.py ' + project
+                self.assertLess(text.index(step), text.index('COPY workspace /workspace'))
+                self.assertTrue((root/'reference_repairs.py').is_file())
+
     def test_zip_never_dereferences_files_or_directory_links(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)/'workspace'
@@ -93,6 +107,30 @@ FAILED test_child
             self.assertNotIn('from test.support', p.read_text())
             ast.parse(p.read_text(), feature_version=(3, 7))
 
+    def test_pytest_cases_keeps_legacy_build_api_and_reference_setup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            setup = 'import pkg_resources\npkg_resources.require("setuptools>=39.2")\n'
+            (root/'setup.py').write_text(setup)
+            (root/'pyproject.toml').write_text('[build-system]\nrequires=["setuptools>=39.2", "wheel"]\n')
+            for _ in range(2):
+                repair(root, 'python-pytest-cases')
+            self.assertIn('setuptools==80.9.0', (root/'pyproject.toml').read_text())
+            self.assertEqual((root/'setup.py').read_text(), setup)
+
+    def test_box_uses_existing_pure_python_fallback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root/'setup.py').write_text(
+                'try:\n    from Cython.Build import cythonize\n'
+                'except ImportError:\n    extra = None\n'
+                'else:\n    extra = cythonize(["box/box.py"])\n')
+            for _ in range(2):
+                repair(root, 'box')
+            namespace = {}
+            exec((root/'setup.py').read_text(), namespace)
+            self.assertIsNone(namespace['extra'])
+
     def test_offline_http_tests_keep_parameter_count_and_assertions(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -116,3 +154,14 @@ FAILED test_child
         self.assertEqual(binary, ['env AWS_DEFAULT_REGION=us-east-1 pytest --continue-on-collection-errors tests'])
         parse = json.loads((root/'parse/test_commands.json').read_text())
         self.assertEqual(parse[:2], ['pip install -e .', 'pip install -r tests/requirements.txt'])
+        autorccar = json.loads((root/'autorccar/test_commands.json').read_text())
+        self.assertEqual(autorccar, ['pytest --continue-on-collection-errors test'])
+        mechanicalsoup = json.loads((root/'mechanicalsoup/test_commands.json').read_text())
+        self.assertEqual(mechanicalsoup, ['pytest --continue-on-collection-errors tests'])
+        pytz = json.loads((root/'pytz/test_commands.json').read_text())
+        self.assertEqual(len(pytz), 2)
+        self.assertIn("find_spec('pytz')", pytz[0])
+        self.assertIn("Path('/workspace') in Path(spec.origin).resolve().parents", pytz[0])
+        self.assertEqual(pytz[1], 'env PYTHONPATH=/workspace/src:/workspace pytest '
+                                 '--continue-on-collection-errors -v '
+                                 'test_docs.py test_lazy.py test_tzinfo.py')
