@@ -1,0 +1,29 @@
+{
+  "model_list": [
+    {
+      "model_name": "repo-model",
+      "litellm_params": {
+        "model": "openai/default",
+        "api_base": "http://phoenix-gw-eval.alibaba.com/eval/v1",
+        "api_key": "unused",
+        "timeout": 3600,
+        "extra_headers": {
+          "x-eval-token": "c7e2d9a3b1f04586972e3a1d0c8b9f42",
+          "x-eval-timeout": "3600",
+          "x-eval-domain-proxy": "http://33.59.171.170:23456",
+          "X-SMG-Routing-Key": "proxy_215.66.227.99:23456",
+          "X-Backend-TrajectoryID": "proxy_33.59.171.170:23456"
+        }
+      }
+    }
+  ],
+  "general_settings": {
+    "master_key": "os.environ/NL2REPO_API_KEY"
+  },
+  "litellm_settings": {
+    "use_chat_completions_url_for_anthropic_messages": true,
+    "callbacks": [
+      "claude_code.phoenix_adapter.callback"
+    ]
+  }
+}

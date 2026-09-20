@@ -1,0 +1,19 @@
+{
+  "model_list": [
+    {
+      "model_name": "repo-model",
+      "litellm_params": {
+        "model": "openai/gpt-5.6-luna",
+        "timeout": 120,
+        "extra_headers": {
+          "x-eval-token": "c7e2d9a3b1f04586972e3a1d0c8b9f42",
+          "x-eval-domain-proxy": "https://iai.alibaba-inc.com",
+          "tenant": "icbu-azure-buyer-agent-algo",
+          "empId": "552797",
+          "iai-tag": "test proxy"
+        },
+        "reasoning_effort": "none"
+      }
+    }
+  ]
+}

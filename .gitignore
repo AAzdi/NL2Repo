@@ -1,10 +1,15 @@
-# Local configuration and credentials
-.nl2repo-local/
+# Local runtime files (shared Phoenix configuration is tracked below)
+.nl2repo-local/*
 .env
 .env.*
 *.env
 !*.env.example
 !.env.example
+
+# Shared Phoenix configuration for running a fresh clone
+!.nl2repo-local/gateway.env
+!.nl2repo-local/litellm.phoenix.yaml
+!.nl2repo-local/litellm.phoenix-azure.yaml
 
 # Python environments and generated caches
 .venv*/
